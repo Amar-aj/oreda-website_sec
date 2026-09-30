@@ -1,0 +1,26 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-oreda: #382080;
+  --color-oreda-dark: #001038;
+  --color-oreda-mid: #2e1968;
+  --color-oreda-light: #482888;
+  --color-oreda-muted: #5c5278;
+  --font-sans: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: #1a1440;
+  background: #fff;
+}
+
+#app {
+  min-height: 100svh;
+  width: 100%;
+}
