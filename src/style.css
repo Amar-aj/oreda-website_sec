@@ -6,7 +6,8 @@
   --color-oreda-mid: #2e1968;
   --color-oreda-light: #482888;
   --color-oreda-muted: #5c5278;
-  --font-sans: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-sans: 'Source Sans 3', 'Segoe UI', Tahoma, sans-serif;
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
 }
 
 * {

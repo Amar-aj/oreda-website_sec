@@ -1,49 +1,61 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import acsImg from '@/assets/images/officials/acs.png'
+import ceoImg from '@/assets/images/officials/ceo.png'
+import cmImg from '@/assets/images/officials/cm.png'
+import deputyCmImg from '@/assets/images/officials/deputy-cm.png'
+import type { NavLink, Official } from '@/types'
 import { ChevronDown, Contrast, Mail, Phone, Search } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 
-const activeLink = ref('Home')
+const route = useRoute()
 const fontSize = ref<'sm' | 'base' | 'lg'>('base')
 const highContrast = ref(false)
 
-const officials = {
+const officials: { left: Official[]; right: Official[] } = {
   left: [
     {
       name: 'Shri Mohan Charan Majhi',
       title: "Hon'ble Chief Minister",
-      image: '/images/officials/cm.png',
+      image: cmImg,
     },
     {
       name: 'Shri Kanak Vardhan Singh Deo',
       title: "Hon'ble Deputy Chief Minister",
-      image: '/images/officials/deputy-cm.png',
+      image: deputyCmImg,
     },
   ],
   right: [
     {
       name: 'Shri Vishal Kumar Dev, IAS',
       title: 'Additional Chief Secretary',
-      image: '/images/officials/acs.png',
+      image: acsImg,
     },
     {
       name: 'Shri Debashis Mohanty',
       title: 'Chief Executive Officer',
-      image: '/images/officials/ceo.png',
+      image: ceoImg,
     },
   ],
 }
 
-const navLinks = [
-  { label: 'Home', hasDropdown: false },
-  { label: 'About Us', hasDropdown: false },
+const navLinks: NavLink[] = [
+  { label: 'Home', to: '/', hasDropdown: false },
+  { label: 'About Us', to: '/about', hasDropdown: false },
   { label: 'Who is Who', hasDropdown: false },
-  { label: 'Our Projects', hasDropdown: true },
+  { label: 'Our Projects', to: '/projects', hasDropdown: true },
   { label: 'OPMS Corner', hasDropdown: false },
-  { label: 'Tenders', hasDropdown: false },
-  { label: 'Photo Gallery', hasDropdown: false },
+  { label: 'Tenders', to: '/tenders', hasDropdown: false },
+  { label: 'Photo Gallery', to: '/gallery', hasDropdown: false },
   { label: 'ORTPSA', hasDropdown: false },
-  { label: 'Contact Us', hasDropdown: false },
+  { label: 'Contact Us', to: '/contact', hasDropdown: false },
 ]
+
+function isActive(link: NavLink) {
+  if (!link.to) return false
+  if (link.to === '/') return route.path === '/'
+  return route.path.startsWith(link.to)
+}
 
 function setFontSize(size: 'sm' | 'base' | 'lg') {
   fontSize.value = size
@@ -167,13 +179,13 @@ function toggleContrast() {
         <div
           class="flex items-center justify-center border-y border-oreda/45 px-7 py-2 lg:border-x lg:border-y-0 lg:px-8 lg:py-1"
         >
-          <a href="/" class="block">
+          <RouterLink to="/" class="block">
             <img
               src="/images/oreda-logo.png?v=3"
               alt="OREDA Limited — Department of Energy, Government of Odisha"
               class="block h-[62px] w-auto max-w-[360px] object-contain"
             />
-          </a>
+          </RouterLink>
         </div>
 
         <!-- Right section -->
@@ -212,15 +224,15 @@ function toggleContrast() {
       >
         <ul class="flex flex-1 flex-wrap items-stretch">
           <li v-for="link in navLinks" :key="link.label">
-            <a
-              href="#"
+            <RouterLink
+              v-if="link.to"
+              :to="link.to"
               class="relative flex h-full items-center gap-1 px-3 py-3 text-[13px] font-semibold whitespace-nowrap text-white transition sm:px-3.5 sm:text-sm lg:px-4"
               :class="
-                activeLink === link.label
+                isActive(link)
                   ? 'bg-oreda-light after:absolute after:inset-x-3 after:bottom-0 after:h-[3px] after:rounded-t-sm after:bg-white/90'
                   : 'hover:bg-oreda-mid'
               "
-              @click.prevent="activeLink = link.label"
             >
               {{ link.label }}
               <ChevronDown
@@ -229,7 +241,19 @@ function toggleContrast() {
                 :stroke-width="2.5"
                 class="opacity-90"
               />
-            </a>
+            </RouterLink>
+            <span
+              v-else
+              class="relative flex h-full cursor-default items-center gap-1 px-3 py-3 text-[13px] font-semibold whitespace-nowrap text-white/90 sm:px-3.5 sm:text-sm lg:px-4"
+            >
+              {{ link.label }}
+              <ChevronDown
+                v-if="link.hasDropdown"
+                :size="14"
+                :stroke-width="2.5"
+                class="opacity-90"
+              />
+            </span>
           </li>
         </ul>
 
