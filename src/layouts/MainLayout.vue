@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import BackToTop from '@/components/layout/BackToTop.vue'
+import Footer from '@/components/layout/Footer.vue'
 import Navbar from '@/components/layout/Navbar.vue'
 </script>
 
@@ -8,5 +10,7 @@ import Navbar from '@/components/layout/Navbar.vue'
     <main id="main-content" class="flex-1">
       <RouterView />
     </main>
+    <Footer />
+    <BackToTop />
   </div>
 </template>

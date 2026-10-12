@@ -1,7 +1,17 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import AboutHero from '@/components/about/AboutHero.vue'
+import AboutIntro from '@/components/about/AboutIntro.vue'
+import DeliveryPathway from '@/components/about/DeliveryPathway.vue'
+import VisionMission from '@/components/about/VisionMission.vue'
+import ContactSection from '@/components/home/ContactSection.vue'
+</script>
 
 <template>
-  <section class="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
-    <h1 class="text-2xl font-bold text-oreda">About Us</h1>
-  </section>
+  <div>
+    <AboutHero />
+    <AboutIntro />
+    <VisionMission />
+    <DeliveryPathway />
+    <ContactSection />
+  </div>
 </template>

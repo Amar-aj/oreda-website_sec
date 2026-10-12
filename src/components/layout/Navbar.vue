@@ -4,13 +4,15 @@ import ceoImg from '@/assets/images/officials/ceo.png'
 import cmImg from '@/assets/images/officials/cm.png'
 import deputyCmImg from '@/assets/images/officials/deputy-cm.png'
 import type { NavLink, Official } from '@/types'
-import { ChevronDown, Contrast, Mail, Phone, Search } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { ChevronDown, Contrast, Mail, Menu, Phone, Search, X } from 'lucide-vue-next'
+import { ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
 const route = useRoute()
 const fontSize = ref<'sm' | 'base' | 'lg'>('base')
 const highContrast = ref(false)
+const mobileOpen = ref(false)
+const openDropdown = ref<string | null>(null)
 
 const officials: { left: Official[]; right: Official[] } = {
   left: [
@@ -39,22 +41,51 @@ const officials: { left: Official[]; right: Official[] } = {
   ],
 }
 
+const allOfficials = [...officials.left, ...officials.right]
+
 const navLinks: NavLink[] = [
   { label: 'Home', to: '/', hasDropdown: false },
   { label: 'About Us', to: '/about', hasDropdown: false },
   { label: 'Who is Who', hasDropdown: false },
-  { label: 'Our Projects', to: '/projects', hasDropdown: true },
-  { label: 'OPMS Corner', hasDropdown: false },
+  {
+    label: 'Our Programs',
+    hasDropdown: true,
+    children: [
+      { label: 'On-Grid Re Energy Application', to: '/programs/on-grid' },
+      { label: 'Off-Grid Re Energy Application', to: '/programs/off-grid' },
+      { label: 'Regulatory Functions', to: '/programs/regulatory' },
+      { label: 'Consultancy', to: '/programs/consultancy' },
+      { label: 'Special Scheme', to: '/programs/special-scheme' },
+    ],
+  },
   { label: 'Tenders', to: '/tenders', hasDropdown: false },
   { label: 'Photo Gallery', to: '/gallery', hasDropdown: false },
-  { label: 'ORTPSA', hasDropdown: false },
+  {
+    label: 'SKOCH Award',
+    to: 'https://exhibition.skoch.in/exhibition/odisha-renewable-energy-development-agency/',
+    external: true,
+    hasDropdown: false,
+  },
+  {
+    label: 'Re-Connect Portal',
+    to: 'https://reconnect.odisha.gov.in/',
+    external: true,
+    hasDropdown: false,
+  },
   { label: 'Contact Us', to: '/contact', hasDropdown: false },
 ]
 
 function isActive(link: NavLink) {
-  if (!link.to) return false
+  if (link.children?.length) {
+    return link.children.some((child) => route.path.startsWith(child.to))
+  }
+  if (!link.to || link.external) return false
   if (link.to === '/') return route.path === '/'
   return route.path.startsWith(link.to)
+}
+
+function toggleDropdown(label: string) {
+  openDropdown.value = openDropdown.value === label ? null : label
 }
 
 function setFontSize(size: 'sm' | 'base' | 'lg') {
@@ -67,20 +98,37 @@ function toggleContrast() {
   highContrast.value = !highContrast.value
   document.documentElement.classList.toggle('high-contrast', highContrast.value)
 }
+
+function toggleMobile() {
+  mobileOpen.value = !mobileOpen.value
+}
+
+function closeMobile() {
+  mobileOpen.value = false
+  openDropdown.value = null
+}
+
+watch(
+  () => route.fullPath,
+  () => closeMobile(),
+)
 </script>
 
 <template>
   <header class="w-full bg-white shadow-sm">
     <!-- Top utility bar -->
     <div class="bg-oreda-dark text-white text-[13px]">
-      <div class="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-y-1 px-4 py-1.5 sm:px-6 lg:px-8">
-        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <div
+        class="mx-auto flex max-w-[1400px] items-center justify-end px-4 py-1.5 sm:px-6 lg:justify-between lg:px-8"
+      >
+        <!-- Desktop: gov + contact -->
+        <div class="hidden flex-wrap items-center gap-x-3 gap-y-1 lg:flex">
           <p class="tracking-wide">
             Government of Odisha
             <span class="mx-1.5 opacity-70">|</span>
             Department of Energy
           </p>
-          <span class="hidden h-3.5 w-px bg-white/50 sm:block" aria-hidden="true" />
+          <span class="h-3.5 w-px bg-white/50" aria-hidden="true" />
           <a
             href="tel:06742588260"
             class="inline-flex items-center gap-1.5 hover:underline"
@@ -88,7 +136,7 @@ function toggleContrast() {
             <Phone :size="13" :stroke-width="2" />
             <span>0674 2588260</span>
           </a>
-          <span class="hidden h-3.5 w-px bg-white/50 sm:block" aria-hidden="true" />
+          <span class="h-3.5 w-px bg-white/50" aria-hidden="true" />
           <a
             href="mailto:ceoreda@oredaorissa.com"
             class="inline-flex items-center gap-1.5 hover:underline"
@@ -97,11 +145,16 @@ function toggleContrast() {
             <span>ceoreda@oredaorissa.com</span>
           </a>
         </div>
-        <div class="flex items-center gap-4">
-          <a href="#main-content" class="hover:underline focus:underline">
+
+        <!-- Accessibility (mobile right-aligned / desktop right) -->
+        <div class="flex items-center gap-3 sm:gap-4">
+          <a
+            href="#main-content"
+            class="hidden hover:underline focus:underline sm:inline"
+          >
             Skip to content
           </a>
-          <div class="flex items-center gap-1.5" aria-label="Font size controls">
+          <div class="flex items-center gap-1" aria-label="Font size controls">
             <button
               type="button"
               class="px-1 leading-none transition hover:opacity-80"
@@ -137,19 +190,164 @@ function toggleContrast() {
             @click="toggleContrast"
           >
             <Contrast :size="15" :stroke-width="2" />
-            <span>Contrast</span>
+            <span class="hidden lg:inline">Contrast</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Middle branding bar (CMGI-style 3-section layout) -->
-    <div class="border-b border-gray-200 bg-white">
-      <div
-        class="mx-auto grid max-w-[1400px] grid-cols-1 items-center px-4 py-2.5 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:px-8"
+    <!-- ========== MOBILE branding + officials ========== -->
+    <div class="lg:hidden">
+      <div class="flex items-center justify-between gap-3 border-b border-oreda/15 bg-white px-3 py-1.5 sm:px-4 sm:py-2">
+        <RouterLink to="/" class="shrink-0" @click="closeMobile">
+          <img
+            src="/images/oreda-logo.png?v=3"
+            alt="OREDA Limited"
+            class="h-16 w-auto max-w-[16rem] object-contain object-left sm:h-[4.5rem] sm:max-w-[18rem]"
+          />
+        </RouterLink>
+
+        <button
+          type="button"
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-oreda/25 bg-[#f7f5fc] text-oreda-dark transition hover:border-oreda/40 hover:bg-[#efeaf8]"
+          :aria-expanded="mobileOpen"
+          aria-controls="mobile-nav"
+          aria-label="Toggle menu"
+          @click="toggleMobile"
+        >
+          <X v-if="mobileOpen" :size="20" :stroke-width="2.25" />
+          <Menu v-else :size="20" :stroke-width="2.25" />
+        </button>
+      </div>
+
+      <!-- Officials 2×2 cards -->
+      <div class="border-b border-oreda/10 bg-[#faf9fc] px-3 py-3 sm:px-4">
+        <div class="grid grid-cols-2 gap-2.5 sm:gap-3">
+          <div
+            v-for="person in allOfficials"
+            :key="person.name"
+            class="flex items-center gap-2 rounded-lg border border-oreda/20 bg-white px-2 py-2 sm:gap-2.5 sm:px-2.5"
+          >
+            <div
+              class="h-11 w-11 shrink-0 overflow-hidden rounded-full border border-oreda/25 bg-[#ebe6f5] sm:h-12 sm:w-12"
+            >
+              <img
+                :src="person.image"
+                :alt="person.name"
+                class="h-full w-full object-cover object-top"
+              />
+            </div>
+            <div class="min-w-0 leading-[1.2]">
+              <p class="line-clamp-2 text-[11px] font-bold text-oreda sm:text-[12px]">
+                {{ person.name }}
+              </p>
+              <p class="mt-0.5 line-clamp-2 text-[9.5px] text-[#777] sm:text-[10.5px]">
+                {{ person.title }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile nav panel -->
+      <nav
+        id="mobile-nav"
+        class="overflow-hidden border-b border-oreda/15 bg-oreda transition-[max-height] duration-300 ease-out"
+        :class="mobileOpen ? 'max-h-[40rem]' : 'max-h-0 border-b-0'"
+        aria-label="Primary mobile"
       >
-        <!-- Left section -->
-        <div class="flex items-center justify-between gap-4 py-1 lg:pr-3">
+        <ul class="px-2 py-2" role="list">
+          <li v-for="link in navLinks" :key="link.label">
+            <template v-if="link.children?.length">
+              <button
+                type="button"
+                class="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left text-[14px] font-semibold text-white transition hover:bg-oreda-mid"
+                :aria-expanded="openDropdown === link.label"
+                @click="toggleDropdown(link.label)"
+              >
+                {{ link.label }}
+                <ChevronDown
+                  :size="14"
+                  :stroke-width="2.5"
+                  class="opacity-90 transition"
+                  :class="openDropdown === link.label ? 'rotate-180' : ''"
+                />
+              </button>
+              <ul
+                v-show="openDropdown === link.label"
+                class="mb-1.5 ml-1 space-y-0.5 border-l border-white/20 pl-2"
+                role="list"
+              >
+                <li
+                  v-for="(child, index) in link.children"
+                  :key="child.label"
+                >
+                  <RouterLink
+                    :to="child.to"
+                    class="flex items-start gap-2.5 rounded-md px-2.5 py-2.5 text-[13px] font-medium leading-snug text-white/85 transition hover:bg-oreda-mid hover:text-white"
+                    @click="closeMobile"
+                  >
+                    <span
+                      class="mt-px flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-white/15 text-[9px] font-bold tabular-nums text-white"
+                      aria-hidden="true"
+                    >
+                      {{ String(index + 1).padStart(2, '0') }}
+                    </span>
+                    <span>{{ child.label }}</span>
+                  </RouterLink>
+                </li>
+              </ul>
+            </template>
+            <a
+              v-else-if="link.to && link.external"
+              :href="link.to"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center justify-between rounded-md px-3 py-2.5 text-[14px] font-semibold text-white transition hover:bg-oreda-mid"
+              @click="closeMobile"
+            >
+              {{ link.label }}
+            </a>
+            <RouterLink
+              v-else-if="link.to"
+              :to="link.to"
+              class="flex items-center justify-between rounded-md px-3 py-2.5 text-[14px] font-semibold text-white transition"
+              :class="
+                isActive(link)
+                  ? 'bg-oreda-light'
+                  : 'hover:bg-oreda-mid'
+              "
+              @click="closeMobile"
+            >
+              {{ link.label }}
+            </RouterLink>
+            <span
+              v-else
+              class="flex items-center justify-between rounded-md px-3 py-2.5 text-[14px] font-semibold text-white/90"
+            >
+              {{ link.label }}
+            </span>
+          </li>
+        </ul>
+        <div class="flex items-center gap-2 border-t border-white/15 px-3 py-2.5">
+          <button
+            type="button"
+            class="flex flex-1 items-center justify-center gap-2 rounded-md bg-white/10 py-2 text-[13px] font-semibold text-white transition hover:bg-white/15"
+            aria-label="Search"
+          >
+            <Search :size="16" :stroke-width="2.25" />
+            Search
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <!-- ========== DESKTOP branding bar ========== -->
+    <div class="hidden border-b border-gray-200 bg-white lg:block">
+      <div
+        class="mx-auto grid max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center px-4 py-2.5 sm:px-6 lg:px-8"
+      >
+        <div class="flex items-center justify-between gap-4 py-1 pr-3">
           <div
             v-for="person in officials.left"
             :key="person.name"
@@ -175,9 +373,8 @@ function toggleContrast() {
           </div>
         </div>
 
-        <!-- Center section: equal padding → equal gap to both divider bars -->
         <div
-          class="flex items-center justify-center border-y border-oreda/45 px-7 py-2 lg:border-x lg:border-y-0 lg:px-8 lg:py-1"
+          class="flex items-center justify-center border-x border-oreda/45 px-8 py-1"
         >
           <RouterLink to="/" class="block">
             <img
@@ -188,8 +385,7 @@ function toggleContrast() {
           </RouterLink>
         </div>
 
-        <!-- Right section -->
-        <div class="flex items-center justify-between gap-4 py-1 lg:pl-3">
+        <div class="flex items-center justify-between gap-4 py-1 pl-3">
           <div
             v-for="person in officials.right"
             :key="person.name"
@@ -217,15 +413,95 @@ function toggleContrast() {
       </div>
     </div>
 
-    <!-- Bottom navigation bar -->
-    <nav class="bg-oreda" aria-label="Primary">
+    <!-- Desktop navigation bar -->
+    <nav class="hidden bg-oreda lg:block" aria-label="Primary">
       <div
         class="mx-auto flex max-w-[1400px] items-stretch justify-between px-4 sm:px-6 lg:px-8"
       >
         <ul class="flex flex-1 flex-wrap items-stretch">
-          <li v-for="link in navLinks" :key="link.label">
+          <li
+            v-for="link in navLinks"
+            :key="link.label"
+            class="group/nav relative"
+            :class="link.children?.length ? 'has-dropdown' : ''"
+          >
+            <template v-if="link.children?.length">
+              <button
+                type="button"
+                class="relative flex h-full items-center gap-1.5 px-3 py-3 text-[13px] font-semibold whitespace-nowrap text-white transition group-hover/nav:bg-oreda-mid sm:px-3.5 sm:text-sm lg:px-4"
+                :class="isActive(link) ? 'bg-oreda-light' : ''"
+                aria-haspopup="true"
+              >
+                {{ link.label }}
+                <ChevronDown
+                  :size="14"
+                  :stroke-width="2.5"
+                  class="opacity-90 transition duration-300 ease-out group-hover/nav:rotate-180"
+                />
+              </button>
+              <div
+                class="nav-dropdown pointer-events-none absolute top-full left-0 z-50 pt-2 opacity-0"
+                role="presentation"
+              >
+                <div
+                  class="nav-dropdown-panel w-[20.5rem] overflow-hidden rounded-b-lg bg-white shadow-[0_18px_40px_-14px_rgba(0,16,56,0.4)] ring-1 ring-oreda/10"
+                >
+                  <div
+                    class="h-[3px] bg-gradient-to-r from-oreda via-[#5a3aad] to-oreda-light"
+                    aria-hidden="true"
+                  />
+                  <div class="border-b border-oreda/10 bg-[#f8f6fc] px-4 py-2.5">
+                    <p class="text-[10px] font-bold tracking-[0.18em] text-oreda uppercase">
+                      Explore programs
+                    </p>
+                  </div>
+                  <ul class="py-1.5" role="menu">
+                    <li
+                      v-for="(child, index) in link.children"
+                      :key="child.label"
+                      class="nav-dropdown-item"
+                      :style="{ '--i': index }"
+                      role="none"
+                    >
+                      <RouterLink
+                        :to="child.to"
+                        role="menuitem"
+                        class="group/item flex items-start gap-3 px-4 py-3 transition-colors duration-200 hover:bg-[#f3f0fa]"
+                      >
+                        <span
+                          class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-oreda/10 text-[10px] font-bold tabular-nums text-oreda transition duration-200 group-hover/item:bg-oreda group-hover/item:text-white"
+                          aria-hidden="true"
+                        >
+                          {{ String(index + 1).padStart(2, '0') }}
+                        </span>
+                        <span
+                          class="min-w-0 flex-1 text-[13px] leading-snug font-semibold text-oreda-dark transition-colors duration-200 group-hover/item:text-oreda"
+                        >
+                          {{ child.label }}
+                        </span>
+                        <span
+                          class="mt-px shrink-0 text-[15px] leading-none text-oreda/0 transition duration-200 group-hover/item:translate-x-0.5 group-hover/item:text-oreda"
+                          aria-hidden="true"
+                        >
+                          ›
+                        </span>
+                      </RouterLink>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </template>
+            <a
+              v-else-if="link.to && link.external"
+              :href="link.to"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="relative flex h-full items-center gap-1 px-3 py-3 text-[13px] font-semibold whitespace-nowrap text-white transition hover:bg-oreda-mid sm:px-3.5 sm:text-sm lg:px-4"
+            >
+              {{ link.label }}
+            </a>
             <RouterLink
-              v-if="link.to"
+              v-else-if="link.to"
               :to="link.to"
               class="relative flex h-full items-center gap-1 px-3 py-3 text-[13px] font-semibold whitespace-nowrap text-white transition sm:px-3.5 sm:text-sm lg:px-4"
               :class="
@@ -235,24 +511,12 @@ function toggleContrast() {
               "
             >
               {{ link.label }}
-              <ChevronDown
-                v-if="link.hasDropdown"
-                :size="14"
-                :stroke-width="2.5"
-                class="opacity-90"
-              />
             </RouterLink>
             <span
               v-else
               class="relative flex h-full cursor-default items-center gap-1 px-3 py-3 text-[13px] font-semibold whitespace-nowrap text-white/90 sm:px-3.5 sm:text-sm lg:px-4"
             >
               {{ link.label }}
-              <ChevronDown
-                v-if="link.hasDropdown"
-                :size="14"
-                :stroke-width="2.5"
-                class="opacity-90"
-              />
             </span>
           </li>
         </ul>
@@ -268,3 +532,40 @@ function toggleContrast() {
     </nav>
   </header>
 </template>
+
+<style scoped>
+.has-dropdown .nav-dropdown {
+  transform: translateY(0.6rem) scale(0.96);
+  transform-origin: top left;
+  transition:
+    opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.has-dropdown:hover .nav-dropdown,
+.has-dropdown:focus-within .nav-dropdown {
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.nav-dropdown-item {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 0ms;
+}
+
+.has-dropdown:hover .nav-dropdown-item,
+.has-dropdown:focus-within .nav-dropdown-item {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: calc(70ms + var(--i, 0) * 48ms);
+}
+
+.nav-dropdown-item + .nav-dropdown-item {
+  border-top: 1px solid rgba(56, 32, 128, 0.07);
+}
+</style>

@@ -70,10 +70,10 @@ onUnmounted(() => observer?.disconnect())
       class="relative mx-auto max-w-[1400px] px-4 py-8 sm:px-6 sm:py-9 lg:px-8 lg:py-10"
     >
       <div
-        class="achievements-reveal flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between lg:gap-10"
+        class="achievements-reveal grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-end lg:gap-10"
         style="--delay: 0ms"
       >
-        <div class="max-w-xl">
+        <div>
           <p
             class="text-[11px] font-bold tracking-[0.22em] text-oreda-dark uppercase sm:text-xs"
           >
@@ -88,19 +88,20 @@ onUnmounted(() => observer?.disconnect())
             Documented progress across
             <span class="text-oreda">key reporting years</span>
           </h2>
+        </div>
 
-          <p class="mt-3 max-w-lg text-[14px] leading-[1.55] text-[#6b7280] sm:text-[15px]">
+        <div class="relative lg:pb-1 lg:text-right">
+          <p
+            class="pointer-events-none absolute -top-6 right-0 hidden font-display text-[4.5rem] leading-none text-oreda/[0.07] select-none lg:block"
+            aria-hidden="true"
+          >
+            0{{ items.length }}
+          </p>
+          <p class="relative text-[14px] leading-[1.55] text-[#6b7280] sm:text-[15px] lg:ml-auto lg:max-w-sm">
             Explore OREDA’s published achievement records — from solar programme
             delivery to year-wise institutional milestones.
           </p>
         </div>
-
-        <p
-          class="hidden font-display text-[4.5rem] leading-none text-oreda/[0.08] select-none lg:block"
-          aria-hidden="true"
-        >
-          0{{ items.length }}
-        </p>
       </div>
 
       <div
