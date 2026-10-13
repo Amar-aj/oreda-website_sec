@@ -1,7 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import GalleryHero from '@/components/gallery/GalleryHero.vue'
+import GalleryShowcase from '@/components/gallery/GalleryShowcase.vue'
+</script>
 
 <template>
-  <section class="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
-    <h1 class="text-2xl font-bold text-oreda">Photo Gallery</h1>
-  </section>
+  <div>
+    <GalleryHero />
+    <GalleryShowcase />
+  </div>
 </template>

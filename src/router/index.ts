@@ -49,10 +49,16 @@ const router = createRouter({
           component: () => import('@/views/Gallery.vue'),
         },
         {
+          path: 'career',
+          name: 'career',
+          component: () => import('@/views/Career.vue'),
+        },
+        {
           path: 'contact',
           name: 'contact',
           component: () => import('@/views/Contact.vue'),
         },
+
       ],
     },
   ],

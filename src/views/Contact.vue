@@ -1,7 +1,13 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import ContactHero from '@/components/contact/ContactHero.vue'
+import ContactMain from '@/components/contact/ContactMain.vue'
+import ContactMap from '@/components/contact/ContactMap.vue'
+</script>
 
 <template>
-  <section class="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
-    <h1 class="text-2xl font-bold text-oreda">Contact Us</h1>
-  </section>
+  <div>
+    <ContactHero />
+    <ContactMain />
+    <ContactMap />
+  </div>
 </template>

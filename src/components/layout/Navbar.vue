@@ -72,6 +72,7 @@ const navLinks: NavLink[] = [
     external: true,
     hasDropdown: false,
   },
+  { label: 'Career', to: '/career', hasDropdown: false },
   { label: 'Contact Us', to: '/contact', hasDropdown: false },
 ]
 
