@@ -5,10 +5,11 @@ import maleImg from '@/assets/images/officials/avatar-male.jpg'
 import ceoImg from '@/assets/images/officials/ceo.png'
 import cmImg from '@/assets/images/officials/cm.png'
 import deputyCmImg from '@/assets/images/officials/deputy-cm.png'
-import { MapPin } from 'lucide-vue-next'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { MapPin, Search, X } from 'lucide-vue-next'
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 
 type Gender = 'male' | 'female'
+type CategoryId = 'all' | 'senior' | 'programme' | 'admin'
 
 interface SeniorOfficial {
   id: number
@@ -30,11 +31,18 @@ interface TeamMember {
 }
 
 interface TeamSection {
-  id: string
+  id: 'programme' | 'admin'
   eyebrow: string
   title: string
   members: TeamMember[]
 }
+
+const categories: { id: CategoryId; label: string }[] = [
+  { id: 'all', label: 'All' },
+  { id: 'senior', label: 'Senior officials' },
+  { id: 'programme', label: 'Renewable energy delivery' },
+  { id: 'admin', label: 'Support & coordination' },
+]
 
 const seniorOfficials: SeniorOfficial[] = [
   {
@@ -204,13 +212,66 @@ const teamSections: TeamSection[] = [
   },
 ]
 
+const activeCategory = ref<CategoryId>('all')
+const searchOpen = ref(false)
+const searchQuery = ref('')
+const searchInputRef = ref<HTMLInputElement | null>(null)
+
 const sectionRef = ref<HTMLElement | null>(null)
 const inView = ref(false)
 let observer: IntersectionObserver | null = null
 
-const seniorCount = computed(() =>
-  String(seniorOfficials.length).padStart(2, '0'),
+function matchesQuery(name: string, designation: string) {
+  const q = searchQuery.value.trim().toLowerCase()
+  if (!q) return true
+  return (
+    name.toLowerCase().includes(q) || designation.toLowerCase().includes(q)
+  )
+}
+
+const filteredSeniors = computed(() => {
+  if (activeCategory.value !== 'all' && activeCategory.value !== 'senior') {
+    return []
+  }
+  return seniorOfficials.filter((p) => matchesQuery(p.name, p.designation))
+})
+
+const filteredSections = computed(() =>
+  teamSections
+    .filter((section) => {
+      if (activeCategory.value === 'all') return true
+      if (activeCategory.value === 'senior') return false
+      return section.id === activeCategory.value
+    })
+    .map((section) => ({
+      ...section,
+      members: section.members.filter((m) =>
+        matchesQuery(m.name, m.designation),
+      ),
+    }))
+    .filter((section) => section.members.length > 0),
 )
+
+const showSeniors = computed(() => filteredSeniors.value.length > 0)
+
+const seniorCount = computed(() =>
+  String(filteredSeniors.value.length).padStart(2, '0'),
+)
+
+function setCategory(id: CategoryId) {
+  activeCategory.value = id
+}
+
+async function openSearch() {
+  searchOpen.value = true
+  await nextTick()
+  searchInputRef.value?.focus()
+}
+
+function closeSearch() {
+  searchOpen.value = false
+  searchQuery.value = ''
+}
 
 function memberImage(member: TeamMember) {
   if (member.image) return member.image
@@ -245,11 +306,72 @@ onUnmounted(() => observer?.disconnect())
       <div class="who-dir-mesh" />
     </div>
 
-    <div class="relative mx-auto max-w-[1400px] px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
+    <div class="relative mx-auto max-w-[1400px] px-4 pt-6 pb-12 sm:px-6 sm:pt-7 sm:pb-14 lg:px-8 lg:pt-8 lg:pb-16">
+      <div class="who-toolbar who-reveal" style="--delay: 0ms">
+        <div
+          class="who-tabs"
+          :class="{ 'is-dimmed': searchOpen }"
+          role="tablist"
+          aria-label="Filter leadership directory"
+        >
+          <button
+            v-for="cat in categories"
+            :key="cat.id"
+            type="button"
+            role="tab"
+            class="who-tab"
+            :class="{ 'is-active': activeCategory === cat.id }"
+            :aria-selected="activeCategory === cat.id"
+            @click="setCategory(cat.id)"
+          >
+            {{ cat.label }}
+          </button>
+        </div>
+
+        <div class="who-search" :class="{ 'is-open': searchOpen }">
+          <button
+            v-show="!searchOpen"
+            type="button"
+            class="who-search-trigger"
+            aria-label="Search by name or designation"
+            @click="openSearch"
+          >
+            <Search :size="17" :stroke-width="2.2" />
+          </button>
+
+          <div class="who-search-panel" :aria-hidden="!searchOpen">
+            <Search
+              :size="16"
+              :stroke-width="2.2"
+              class="who-search-leading"
+              aria-hidden="true"
+            />
+            <input
+              ref="searchInputRef"
+              v-model="searchQuery"
+              type="search"
+              class="who-search-input"
+              placeholder="Search by name or designation…"
+              aria-label="Search by name or designation"
+              @keydown.escape="closeSearch"
+            />
+            <button
+              type="button"
+              class="who-search-close"
+              aria-label="Close search"
+              @click="closeSearch"
+            >
+              <X :size="16" :stroke-width="2.2" />
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Senior officials -->
       <div
-        class="who-reveal flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"
-        style="--delay: 0ms"
+        v-if="showSeniors || activeCategory === 'all' || activeCategory === 'senior'"
+        class="who-reveal mt-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"
+        style="--delay: 40ms"
       >
         <div class="max-w-xl">
           <p class="who-eyebrow">Institutional leadership</p>
@@ -272,9 +394,9 @@ onUnmounted(() => observer?.disconnect())
         </div>
       </div>
 
-      <ul class="who-senior-grid" role="list">
+      <ul v-if="showSeniors" class="who-senior-grid" role="list">
         <li
-          v-for="(person, index) in seniorOfficials"
+          v-for="(person, index) in filteredSeniors"
           :key="person.id"
           class="who-senior"
           :class="{ 'is-highlight': person.highlight }"
@@ -301,6 +423,14 @@ onUnmounted(() => observer?.disconnect())
           <p class="who-senior-org">{{ person.organization }}</p>
         </li>
       </ul>
+
+      <p
+        v-else-if="!filteredSections.length"
+        class="who-empty"
+        role="status"
+      >
+        No people match your filter.
+      </p>
     </div>
 
     <!-- Stats rail -->
@@ -319,9 +449,12 @@ onUnmounted(() => observer?.disconnect())
     </div>
 
     <!-- Team sections -->
-    <div class="relative mx-auto max-w-[1400px] px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
+    <div
+      v-if="filteredSections.length"
+      class="relative mx-auto max-w-[1400px] px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16"
+    >
       <section
-        v-for="(team, teamIndex) in teamSections"
+        v-for="(team, teamIndex) in filteredSections"
         :id="team.id"
         :key="team.id"
         class="who-team"
@@ -413,6 +546,179 @@ onUnmounted(() => observer?.disconnect())
 .is-inview .who-reveal {
   opacity: 1;
   transform: translateY(0);
+}
+
+.who-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.15rem;
+  border-bottom: 1px solid rgba(56, 32, 128, 0.1);
+}
+
+.who-tabs {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  gap: 0.2rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  transition: opacity 0.3s ease;
+}
+
+.who-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.who-tabs.is-dimmed {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.who-tab {
+  position: relative;
+  flex-shrink: 0;
+  padding: 0.8rem 0.95rem;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #6b7c94;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.who-tab::after {
+  content: '';
+  position: absolute;
+  right: 0.95rem;
+  bottom: -1px;
+  left: 0.95rem;
+  height: 2px;
+  background: #382080;
+  transform: scaleX(0);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.who-tab:hover {
+  color: #001038;
+}
+
+.who-tab.is-active {
+  color: #382080;
+}
+
+.who-tab.is-active::after {
+  transform: scaleX(1);
+}
+
+.who-search {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: 2.4rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.who-search-trigger {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  color: #382080;
+  background: transparent;
+  border: 1px solid rgba(56, 32, 128, 0.18);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.who-search-trigger:hover {
+  background: rgba(56, 32, 128, 0.06);
+  border-color: rgba(56, 32, 128, 0.35);
+}
+
+.who-search-panel {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  background: #fff;
+  border: 1px solid transparent;
+  transform: translateY(-50%);
+  transition:
+    width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.who-search.is-open .who-search-panel {
+  width: min(22rem, 72vw);
+  opacity: 1;
+  pointer-events: auto;
+  border-color: rgba(56, 32, 128, 0.2);
+  box-shadow: 0 10px 24px -16px rgba(0, 16, 56, 0.35);
+}
+
+.who-search-leading {
+  flex-shrink: 0;
+  margin-left: 0.7rem;
+  color: #382080;
+}
+
+.who-search-input {
+  width: 100%;
+  min-width: 0;
+  height: 2.4rem;
+  padding: 0 0.15rem;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #001038;
+  background: transparent;
+  border: 0;
+  outline: none;
+}
+
+.who-search-input::placeholder {
+  color: #9aa8bc;
+}
+
+.who-search-close {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.3rem;
+  color: #6b7c94;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.who-search-close:hover {
+  color: #382080;
+}
+
+.who-empty {
+  margin: 1.5rem 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7c94;
 }
 
 .who-eyebrow {
