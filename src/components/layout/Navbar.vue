@@ -46,7 +46,7 @@ const allOfficials = [...officials.left, ...officials.right]
 const navLinks: NavLink[] = [
   { label: 'Home', to: '/', hasDropdown: false },
   { label: 'About Us', to: '/about', hasDropdown: false },
-  { label: 'Who is Who', hasDropdown: false },
+  { label: 'Leadership', to: '/leadership', hasDropdown: false },
   {
     label: 'Our Programs',
     hasDropdown: true,
@@ -69,6 +69,12 @@ const navLinks: NavLink[] = [
   {
     label: 'Re-Connect Portal',
     to: 'https://reconnect.odisha.gov.in/',
+    external: true,
+    hasDropdown: false,
+  },
+  {
+    label: 'Bhubaneswar Solar City Portal',
+    to: 'https://recitybhubaneswar.odisha.gov.in/home',
     external: true,
     hasDropdown: false,
   },

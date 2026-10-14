@@ -19,6 +19,15 @@ const router = createRouter({
           component: () => import('@/views/About.vue'),
         },
         {
+          path: 'leadership',
+          name: 'leadership',
+          component: () => import('@/views/Who.vue'),
+        },
+        {
+          path: 'who-is-who',
+          redirect: { name: 'leadership' },
+        },
+        {
           path: 'projects',
           name: 'projects',
           component: () => import('@/views/Projects.vue'),

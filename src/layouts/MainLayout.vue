@@ -2,6 +2,7 @@
 import BackToTop from '@/components/layout/BackToTop.vue'
 import Footer from '@/components/layout/Footer.vue'
 import Navbar from '@/components/layout/Navbar.vue'
+import SocialFloat from '@/components/layout/SocialFloat.vue'
 </script>
 
 <template>
@@ -11,6 +12,7 @@ import Navbar from '@/components/layout/Navbar.vue'
       <RouterView />
     </main>
     <Footer />
+    <SocialFloat />
     <BackToTop />
   </div>
 </template>
