@@ -1,7 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import TenderBoard from '@/components/tender/TenderBoard.vue'
+import TenderHero from '@/components/tender/TenderHero.vue'
+</script>
 
 <template>
-  <section class="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
-    <h1 class="text-2xl font-bold text-oreda">Tenders</h1>
-  </section>
+  <div>
+    <TenderHero />
+    <TenderBoard />
+  </div>
 </template>
