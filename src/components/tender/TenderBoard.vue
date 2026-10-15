@@ -1,5 +1,16 @@
 <script setup lang="ts">
 import {
+  CLOSING_SOON_DAYS,
+  getDocumentSerial,
+  getTenderSerial,
+  isNewDocument,
+  isNewTender,
+  parseBoardDate,
+  tenders,
+  type DocKind,
+  type Tender,
+} from '@/data/tenders'
+import {
   CalendarDays,
   ChevronDown,
   Clock3,
@@ -8,281 +19,45 @@ import {
   Search,
   X,
 } from 'lucide-vue-next'
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 
 type StatusFilter = 'All' | 'Open' | 'Closed'
-type DocKind = 'NIT' | 'RFP' | 'Corrigendum' | 'Clarification' | 'Addendum'
-
-interface TenderDocument {
-  id: string
-  kind: DocKind
-  title: string
-  publishedOn: string
-  note?: string
-  href: string
-  size: string
-}
-
-interface Tender {
-  id: number
-  ref: string
-  title: string
-  category: string
-  status: 'Open' | 'Closed'
-  publishedOn: string
-  closesOn: string
-  openingOn?: string
-  emd?: string
-  summary: string
-  documents: TenderDocument[]
-}
 
 const statusFilters: StatusFilter[] = ['All', 'Open', 'Closed']
-const CLOSING_SOON_DAYS = 7
-
-const tenders: Tender[] = [
-  {
-    id: 1,
-    ref: 'OREDA/SPV/2026/14',
-    title: 'Rooftop solar PV — supply, installation & commissioning',
-    category: 'Solar PV',
-    status: 'Open',
-    publishedOn: '01 Oct 2026',
-    closesOn: '28 Oct 2026, 5:00 PM',
-    openingOn: '30 Oct 2026',
-    emd: '₹2,50,000',
-    summary:
-      'Design, supply, installation and commissioning of grid-connected rooftop solar PV systems under OREDA programmes across selected districts.',
-    documents: [
-      {
-        id: 'd1a',
-        kind: 'NIT',
-        title: 'Notice Inviting Tender',
-        publishedOn: '01 Oct 2026',
-        href: '/documents/tenders/spv-2026-14-nit.pdf',
-        size: '420 KB',
-      },
-      {
-        id: 'd1b',
-        kind: 'RFP',
-        title: 'Request for Proposal — original',
-        publishedOn: '01 Oct 2026',
-        note: 'Baseline RFP with technical specifications and BOQ.',
-        href: '/documents/tenders/spv-2026-14-rfp.pdf',
-        size: '2.1 MB',
-      },
-      {
-        id: 'd1c',
-        kind: 'Corrigendum',
-        title: 'Corrigendum — 01',
-        publishedOn: '08 Oct 2026',
-        note: 'Extended bid submission date and revised payment schedule (Clause 4.2).',
-        href: '/documents/tenders/spv-2026-14-corr-01.pdf',
-        size: '310 KB',
-      },
-      {
-        id: 'd1d',
-        kind: 'Clarification',
-        title: 'Pre-bid clarifications',
-        publishedOn: '12 Oct 2026',
-        note: 'Responses to queries raised in the pre-bid meeting held on 10 Oct 2026.',
-        href: '/documents/tenders/spv-2026-14-clarifications.pdf',
-        size: '540 KB',
-      },
-      {
-        id: 'd1e',
-        kind: 'Corrigendum',
-        title: 'Corrigendum — 02',
-        publishedOn: '16 Oct 2026',
-        note: 'Updated technical eligibility criteria for EPC experience.',
-        href: '/documents/tenders/spv-2026-14-corr-02.pdf',
-        size: '280 KB',
-      },
-    ],
-  },
-  {
-    id: 2,
-    ref: 'OREDA/SSL/2026/09',
-    title: 'Solar LED street lighting for rural blocks',
-    category: 'Street lighting',
-    status: 'Open',
-    publishedOn: '20 Sep 2026',
-    closesOn: '18 Oct 2026, 5:00 PM',
-    openingOn: '20 Oct 2026',
-    emd: '₹1,00,000',
-    summary:
-      'Supply and installation of solar LED street lighting systems in identified rural blocks with five-year comprehensive maintenance.',
-    documents: [
-      {
-        id: 'd2a',
-        kind: 'NIT',
-        title: 'Notice Inviting Tender',
-        publishedOn: '20 Sep 2026',
-        href: '/documents/tenders/ssl-2026-09-nit.pdf',
-        size: '390 KB',
-      },
-      {
-        id: 'd2b',
-        kind: 'RFP',
-        title: 'Detailed tender document',
-        publishedOn: '20 Sep 2026',
-        href: '/documents/tenders/ssl-2026-09-rfp.pdf',
-        size: '1.8 MB',
-      },
-      {
-        id: 'd2c',
-        kind: 'Addendum',
-        title: 'Addendum — site list update',
-        publishedOn: '05 Oct 2026',
-        note: 'Revised village / block-wise installation schedule (Annexure-B).',
-        href: '/documents/tenders/ssl-2026-09-addendum.pdf',
-        size: '650 KB',
-      },
-    ],
-  },
-  {
-    id: 3,
-    ref: 'OREDA/BIO/2026/03',
-    title: 'Community biogas plant O&M services',
-    category: 'Biogas',
-    status: 'Open',
-    publishedOn: '05 Oct 2026',
-    closesOn: '12 Nov 2026, 5:00 PM',
-    openingOn: '14 Nov 2026',
-    emd: '₹75,000',
-    summary:
-      'Operation and maintenance of community biogas plants including feedstock management, safety compliance and beneficiary support.',
-    documents: [
-      {
-        id: 'd3a',
-        kind: 'NIT',
-        title: 'Notice Inviting Tender',
-        publishedOn: '05 Oct 2026',
-        href: '/documents/tenders/bio-2026-03-nit.pdf',
-        size: '360 KB',
-      },
-      {
-        id: 'd3b',
-        kind: 'RFP',
-        title: 'RFP & scope of work',
-        publishedOn: '05 Oct 2026',
-        href: '/documents/tenders/bio-2026-03-rfp.pdf',
-        size: '1.4 MB',
-      },
-    ],
-  },
-  {
-    id: 4,
-    ref: 'OREDA/HYB/2026/01',
-    title: 'Hybrid renewable energy feasibility study',
-    category: 'Consultancy',
-    status: 'Open',
-    publishedOn: '10 Oct 2026',
-    closesOn: '20 Nov 2026, 3:00 PM',
-    openingOn: '22 Nov 2026',
-    emd: '₹50,000',
-    summary:
-      'Techno-economic feasibility study for hybrid solar-wind and storage configurations at prioritised sites in Odisha.',
-    documents: [
-      {
-        id: 'd4a',
-        kind: 'NIT',
-        title: 'Notice Inviting Tender',
-        publishedOn: '10 Oct 2026',
-        href: '/documents/tenders/hyb-2026-01-nit.pdf',
-        size: '340 KB',
-      },
-      {
-        id: 'd4b',
-        kind: 'RFP',
-        title: 'Terms of reference',
-        publishedOn: '10 Oct 2026',
-        href: '/documents/tenders/hyb-2026-01-rfp.pdf',
-        size: '980 KB',
-      },
-      {
-        id: 'd4c',
-        kind: 'Corrigendum',
-        title: 'Corrigendum — 01',
-        publishedOn: '14 Oct 2026',
-        note: 'Clarified consultant team composition and deliverable timelines.',
-        href: '/documents/tenders/hyb-2026-01-corr-01.pdf',
-        size: '220 KB',
-      },
-    ],
-  },
-  {
-    id: 5,
-    ref: 'OREDA/SPV/2025/22',
-    title: 'Off-grid solar water pumping systems',
-    category: 'Solar PV',
-    status: 'Closed',
-    publishedOn: '12 Jun 2025',
-    closesOn: '15 Jul 2025, 5:00 PM',
-    openingOn: '18 Jul 2025',
-    emd: '₹1,50,000',
-    summary:
-      'Supply and installation of off-grid solar water pumping systems for agricultural beneficiaries (archived notice).',
-    documents: [
-      {
-        id: 'd5a',
-        kind: 'NIT',
-        title: 'Notice Inviting Tender',
-        publishedOn: '12 Jun 2025',
-        href: '/documents/tenders/spv-2025-22-nit.pdf',
-        size: '400 KB',
-      },
-      {
-        id: 'd5b',
-        kind: 'RFP',
-        title: 'Tender document',
-        publishedOn: '12 Jun 2025',
-        href: '/documents/tenders/spv-2025-22-rfp.pdf',
-        size: '1.6 MB',
-      },
-      {
-        id: 'd5c',
-        kind: 'Corrigendum',
-        title: 'Corrigendum — 01',
-        publishedOn: '28 Jun 2025',
-        note: 'Final corrigendum before bid closing.',
-        href: '/documents/tenders/spv-2025-22-corr-01.pdf',
-        size: '190 KB',
-      },
-    ],
-  },
-]
 
 const activeStatus = ref<StatusFilter>('All')
 const expandedIds = ref<Set<number>>(new Set(tenders.map((t) => t.id)))
 const searchOpen = ref(false)
 const searchQuery = ref('')
 const searchInputRef = ref<HTMLInputElement | null>(null)
-const sectionRef = ref<HTMLElement | null>(null)
-const inView = ref(false)
-let observer: IntersectionObserver | null = null
-
 const filtered = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
-  return tenders.filter((tender) => {
-    const matchesStatus =
-      activeStatus.value === 'All' || tender.status === activeStatus.value
-    if (!matchesStatus) return false
-    if (!query) return true
-    const docText = tender.documents
-      .map((d) => `${d.title} ${d.kind} ${d.note ?? ''}`)
-      .join(' ')
-    const haystack = [
-      tender.title,
-      tender.ref,
-      tender.category,
-      tender.summary,
-      docText,
-    ]
-      .join(' ')
-      .toLowerCase()
-    return haystack.includes(query)
-  })
+  return tenders
+    .filter((tender) => {
+      const matchesStatus =
+        activeStatus.value === 'All' || tender.status === activeStatus.value
+      if (!matchesStatus) return false
+      if (!query) return true
+      const docText = tender.documents
+        .map((d) => `${d.title} ${d.kind} ${d.note ?? ''}`)
+        .join(' ')
+      const haystack = [
+        tender.title,
+        tender.ref,
+        tender.category,
+        tender.summary,
+        docText,
+      ]
+        .join(' ')
+        .toLowerCase()
+      return haystack.includes(query)
+    })
+    .slice()
+    .sort((a, b) => {
+      const aTime = parseBoardDate(a.publishedOn)?.getTime() ?? 0
+      const bTime = parseBoardDate(b.publishedOn)?.getTime() ?? 0
+      return bTime - aTime
+    })
 })
 
 const openCount = computed(
@@ -304,14 +79,10 @@ function toggleExpand(id: number) {
   expandedIds.value = next
 }
 
-function parseClosesOn(value: string) {
-  const parsed = Date.parse(value.replace(',', ''))
-  return Number.isNaN(parsed) ? null : new Date(parsed)
-}
 
 function isClosingSoon(tender: Tender) {
   if (tender.status !== 'Open') return false
-  const closes = parseClosesOn(tender.closesOn)
+  const closes = parseBoardDate(tender.closesOn)
   if (!closes) return false
   const now = Date.now()
   if (closes.getTime() <= now) return false
@@ -364,31 +135,15 @@ function closeSearch() {
   searchQuery.value = ''
 }
 
-onMounted(() => {
-  observer = new IntersectionObserver(
-    ([entry]) => {
-      if (entry?.isIntersecting) {
-        inView.value = true
-        observer?.disconnect()
-      }
-    },
-    { threshold: 0.06 },
-  )
-  if (sectionRef.value) observer.observe(sectionRef.value)
-})
-
-onUnmounted(() => observer?.disconnect())
 </script>
 
 <template>
   <section
     id="tender-board"
-    ref="sectionRef"
-    class="tender-board relative w-full overflow-hidden"
+    class="tender-board relative w-full"
     aria-labelledby="tender-board-heading"
-    :class="{ 'is-inview': inView }"
   >
-    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+    <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       <div class="tender-board-base" />
       <div class="tender-board-glow tender-board-glow--a" />
       <div class="tender-board-glow tender-board-glow--b" />
@@ -399,13 +154,15 @@ onUnmounted(() => observer?.disconnect())
       <div class="tender-board-slash tender-board-slash--b" />
     </div>
 
-    <div class="relative mx-auto max-w-[1400px] px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
+    <div class="relative mx-auto max-w-[1400px] px-4 pt-10 pb-12 sm:px-6 sm:pt-12 sm:pb-14 lg:px-8 lg:pt-14 lg:pb-16">
       <div
-        class="tender-reveal flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"
-        style="--delay: 0ms"
+        class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-10"
       >
-        <div class="max-w-2xl">
-          <p class="tender-eyebrow">Procurement board</p>
+        <div class="min-w-0 max-w-2xl">
+          <div class="tender-eyebrow-row">
+            <span class="tender-eyebrow-bar" aria-hidden="true" />
+            <p class="tender-eyebrow">Procurement board</p>
+          </div>
           <h2
             id="tender-board-heading"
             class="mt-2 font-display text-[clamp(1.55rem,2.8vw,2.2rem)] leading-[1.15] font-semibold tracking-[-0.015em] text-oreda-dark"
@@ -415,7 +172,7 @@ onUnmounted(() => observer?.disconnect())
             under it.
           </h2>
         </div>
-        <div class="tender-board-aside lg:pb-1">
+        <div class="tender-board-aside min-w-0 shrink-0">
           <p class="tender-board-aside-copy">
             Expand any notice to download the NIT, RFP and all subsequent
             corrigenda or clarifications released for that tender.
@@ -430,8 +187,7 @@ onUnmounted(() => observer?.disconnect())
       </div>
 
       <div
-        class="tender-reveal tender-toolbar mt-8 border-b border-oreda/10"
-        style="--delay: 50ms"
+        class="tender-toolbar mt-8 border-b border-oreda/10"
       >
         <div
           class="tender-tabs"
@@ -494,12 +250,19 @@ onUnmounted(() => observer?.disconnect())
 
       <ul :key="activeStatus" class="tender-list mt-6" role="list">
         <li
-          v-for="(tender, index) in filtered"
+          v-for="tender in filtered"
           :key="tender.id"
+          :id="`tender-${tender.id}`"
           class="tender-item"
           :class="{ 'is-open': isExpanded(tender.id) }"
-          :style="{ '--item-delay': `${70 + index * 50}ms` }"
         >
+          <span
+            class="tender-serial"
+            :title="`Tender ${getTenderSerial(tender.id)}`"
+          >
+            <span class="tender-serial-num">{{ getTenderSerial(tender.id) }}</span>
+          </span>
+
           <span
             v-if="hasUpdates(tender)"
             class="tender-updated"
@@ -528,6 +291,13 @@ onUnmounted(() => observer?.disconnect())
                   Closing soon
                 </span>
                 <span class="tender-ref">{{ tender.ref }}</span>
+                <span
+                  v-if="isNewTender(tender)"
+                  class="tender-new"
+                  title="Published or updated within the last 4 days"
+                >
+                  New
+                </span>
               </div>
 
               <h3 class="tender-item-title">{{ tender.title }}</h3>
@@ -626,11 +396,23 @@ onUnmounted(() => observer?.disconnect())
 
                 <div class="tender-doc-body">
                   <div class="tender-doc-head">
+                    <span
+                      class="tender-doc-serial"
+                      :title="`Document ${getDocumentSerial(tender.id, docIndex)}`"
+                    >
+                      {{ getDocumentSerial(tender.id, docIndex) }}
+                    </span>
                     <span class="tender-doc-kind" :class="kindClass(doc.kind)">
                       {{ doc.kind }}
                     </span>
                     <span class="tender-doc-date">{{ doc.publishedOn }}</span>
-                    <span class="tender-doc-size">{{ doc.size }}</span>
+                    <span
+                      v-if="isNewDocument(doc)"
+                      class="tender-doc-new"
+                      title="Uploaded within the last 4 days"
+                    >
+                      New
+                    </span>
                   </div>
                   <h4 class="tender-doc-title">{{ doc.title }}</h4>
                   <p v-if="doc.note" class="tender-doc-note">{{ doc.note }}</p>
@@ -755,18 +537,18 @@ onUnmounted(() => observer?.disconnect())
   opacity: 0.7;
 }
 
-.tender-reveal {
-  opacity: 0;
-  transform: translateY(16px);
-  transition:
-    opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: var(--delay, 0ms);
+.tender-eyebrow-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.is-inview .tender-reveal {
-  opacity: 1;
-  transform: translateY(0);
+.tender-eyebrow-bar {
+  display: block;
+  width: 1.75rem;
+  height: 2px;
+  flex-shrink: 0;
+  background: #382080;
 }
 
 .tender-eyebrow {
@@ -779,25 +561,20 @@ onUnmounted(() => observer?.disconnect())
 }
 
 .tender-board-aside {
-  max-width: 28rem;
+  width: 100%;
+  max-width: 24rem;
 }
 
 .tender-board-aside-copy {
   margin: 0;
-  max-width: 28rem;
   font-size: 13.5px;
-  line-height: 1.5;
+  line-height: 1.55;
   color: #5a6b82;
-  text-wrap: pretty;
 }
 
 @media (min-width: 1024px) {
   .tender-board-aside {
     text-align: right;
-  }
-
-  .tender-board-aside-copy {
-    margin-left: auto;
   }
 }
 
@@ -984,22 +761,13 @@ onUnmounted(() => observer?.disconnect())
 .tender-item {
   position: relative;
   overflow: hidden;
+  scroll-margin-top: 5.5rem;
   background: #fff;
   border: 1px solid rgba(56, 32, 128, 0.1);
   box-shadow: 0 16px 34px -28px rgba(0, 16, 56, 0.4);
-  opacity: 0;
-  transform: translateY(14px);
   transition:
-    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
     border-color 0.25s ease,
     box-shadow 0.25s ease;
-  transition-delay: var(--item-delay, 0ms);
-}
-
-.is-inview .tender-item {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .tender-item.is-open {
@@ -1010,7 +778,7 @@ onUnmounted(() => observer?.disconnect())
 .tender-item-row {
   display: grid;
   gap: 1rem;
-  padding: 1.15rem 1.2rem;
+  padding: 1.15rem 1.2rem 1.15rem 2.85rem;
 }
 
 @media (min-width: 900px) {
@@ -1018,7 +786,7 @@ onUnmounted(() => observer?.disconnect())
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: 1.25rem;
-    padding: 1.25rem 1.4rem;
+    padding: 1.25rem 1.4rem 1.25rem 3.1rem;
   }
 }
 
@@ -1028,6 +796,32 @@ onUnmounted(() => observer?.disconnect())
   align-items: center;
   gap: 0.45rem 0.65rem;
   margin-bottom: 0.55rem;
+}
+
+.tender-serial {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  width: 2.65rem;
+  height: 2.65rem;
+  background: linear-gradient(145deg, #482888 0%, #382080 52%, #241456 100%);
+  border-radius: 0 0 100% 0;
+  box-shadow: 2px 3px 12px -4px rgba(56, 32, 128, 0.55);
+}
+
+.tender-serial-num {
+  position: absolute;
+  top: 42%;
+  left: 42%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .tender-status {
@@ -1079,6 +873,147 @@ onUnmounted(() => observer?.disconnect())
   letter-spacing: 0.04em;
   color: #382080;
   font-variant-numeric: tabular-nums;
+}
+
+.tender-new,
+.tender-doc-new {
+  --ribbon: #e30613;
+  --ribbon-mid: #d10512;
+  --ribbon-deep: #b0040f;
+  --ribbon-fold: #8a030c;
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.4rem;
+  padding: 0 0.95rem 0 0.7rem;
+  margin-left: 0.7rem;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #fff;
+  border: 0;
+  background-image:
+    linear-gradient(
+      115deg,
+      transparent 0%,
+      transparent 40%,
+      rgba(255, 255, 255, 0.5) 50%,
+      transparent 60%,
+      transparent 100%
+    ),
+    linear-gradient(180deg, #ff3440 0%, var(--ribbon) 42%, var(--ribbon-deep) 100%);
+  background-size:
+    220% 100%,
+    100% 100%;
+  background-position:
+    130% 0,
+    0 0;
+  box-shadow:
+    0 5px 12px -5px rgba(176, 4, 15, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  animation:
+    tender-new-float 2.4s ease-in-out infinite,
+    tender-new-shimmer 2.8s ease-in-out infinite;
+}
+
+.tender-new::before,
+.tender-doc-new::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -0.62rem;
+  border-style: solid;
+  border-width: 0.7rem 0.62rem 0.7rem 0;
+  border-color: transparent var(--ribbon-mid) transparent transparent;
+  filter: drop-shadow(-1px 2px 2px rgba(138, 3, 12, 0.25));
+}
+
+.tender-new::after,
+.tender-doc-new::after {
+  content: '';
+  position: absolute;
+  top: -0.18rem;
+  right: -0.28rem;
+  z-index: 2;
+  width: 0.82rem;
+  height: 0.82rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 32% 34%,
+    #ff6b72 0%,
+    var(--ribbon) 45%,
+    var(--ribbon-fold) 78%
+  );
+  box-shadow:
+    inset -2px 1px 3px rgba(0, 0, 0, 0.28),
+    2px 3px 5px -1px rgba(138, 3, 12, 0.4),
+    0 0 0 0 rgba(227, 6, 19, 0.45);
+  animation: tender-new-orb 1.8s ease-in-out infinite;
+}
+
+.tender-doc-new {
+  height: 1.25rem;
+  padding: 0 0.85rem 0 0.6rem;
+  margin-left: 0.55rem;
+  font-size: 9px;
+}
+
+.tender-doc-new::before {
+  left: -0.55rem;
+  border-width: 0.625rem 0.55rem 0.625rem 0;
+}
+
+.tender-doc-new::after {
+  top: -0.14rem;
+  right: -0.22rem;
+  width: 0.72rem;
+  height: 0.72rem;
+}
+
+@keyframes tender-new-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.5px);
+  }
+}
+
+@keyframes tender-new-shimmer {
+  0%,
+  30% {
+    background-position:
+      130% 0,
+      0 0;
+  }
+  70%,
+  100% {
+    background-position:
+      -40% 0,
+      0 0;
+  }
+}
+
+@keyframes tender-new-orb {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow:
+      inset -2px 1px 3px rgba(0, 0, 0, 0.28),
+      2px 3px 5px -1px rgba(138, 3, 12, 0.4),
+      0 0 0 0 rgba(227, 6, 19, 0.4);
+  }
+  50% {
+    transform: scale(1.12);
+    box-shadow:
+      inset -2px 1px 3px rgba(0, 0, 0, 0.28),
+      2px 3px 5px -1px rgba(138, 3, 12, 0.4),
+      0 0 0 5px rgba(227, 6, 19, 0);
+  }
 }
 
 .tender-updated {
@@ -1389,6 +1324,21 @@ onUnmounted(() => observer?.disconnect())
   margin-bottom: 0.35rem;
 }
 
+.tender-doc-serial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.1rem;
+  padding: 0.18rem 0.4rem;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #382080;
+  background: rgba(56, 32, 128, 0.08);
+  border: 1px solid rgba(56, 32, 128, 0.14);
+  font-variant-numeric: tabular-nums;
+}
+
 .tender-doc-kind {
   padding: 0.22rem 0.5rem;
   font-size: 10px;
@@ -1428,8 +1378,7 @@ onUnmounted(() => observer?.disconnect())
   border-color: rgba(91, 61, 143, 0.16);
 }
 
-.tender-doc-date,
-.tender-doc-size {
+.tender-doc-date {
   font-size: 11.5px;
   font-weight: 600;
   color: #8a97ab;
@@ -1493,12 +1442,14 @@ onUnmounted(() => observer?.disconnect())
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tender-reveal,
-  .tender-item,
   .tender-search-panel,
   .tender-btn--ghost svg,
   .tender-updated,
-  .tender-closing-soon {
+  .tender-closing-soon,
+  .tender-new,
+  .tender-doc-new,
+  .tender-new::after,
+  .tender-doc-new::after {
     opacity: 1;
     transform: none;
     transition: none;

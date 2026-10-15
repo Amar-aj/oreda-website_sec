@@ -69,7 +69,7 @@ const seniorOfficials: SeniorOfficial[] = [
   },
   {
     id: 4,
-    name: 'Shri Debashis Mohanty',
+    name: 'Shri Saidutta Biplab Keshari Pradhan',
     designation: 'Chief Executive Officer, OREDA',
     organization: 'OREDA',
     image: ceoImg,

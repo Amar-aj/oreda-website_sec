@@ -34,7 +34,7 @@ const officials: { left: Official[]; right: Official[] } = {
       image: acsImg,
     },
     {
-      name: 'Shri Debashis Mohanty',
+      name: 'Shri Saidutta Biplab Keshari Pradhan',
       title: 'Chief Executive Officer',
       image: ceoImg,
     },
