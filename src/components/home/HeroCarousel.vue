@@ -66,7 +66,6 @@ const slides: HeroSlide[] = [
 ]
 
 const activeIndex = ref(0)
-const isPaused = ref(false)
 const isAnimating = ref(false)
 const progress = ref(0)
 const reduceMotion = ref(false)
@@ -91,7 +90,6 @@ function startTimer() {
   if (reduceMotion.value) return
 
   timer = setInterval(() => {
-    if (isPaused.value) return
     progress.value += (TICK_MS / SLIDE_MS) * 100
     if (progress.value >= 100) {
       progress.value = 0
@@ -118,14 +116,6 @@ function prev() {
   goTo((activeIndex.value - 1 + slides.length) % slides.length)
 }
 
-function pause() {
-  isPaused.value = true
-}
-
-function resume() {
-  isPaused.value = false
-}
-
 watch(activeIndex, () => {
   progress.value = 0
 })
@@ -145,10 +135,6 @@ onUnmounted(() => {
     class="hero-carousel relative h-[min(72vh,680px)] min-h-[520px] w-full overflow-hidden bg-oreda-dark"
     aria-roledescription="carousel"
     aria-label="OREDA featured highlights"
-    @mouseenter="pause"
-    @mouseleave="resume"
-    @focusin="pause"
-    @focusout="resume"
   >
     <!-- Slides -->
     <div class="absolute inset-0">

@@ -91,12 +91,13 @@ function isClosingSoon(tender: Tender) {
 }
 
 function hasUpdates(tender: Tender) {
-  return tender.documents.some(
-    (d) =>
-      d.kind === 'Corrigendum' ||
-      d.kind === 'Addendum' ||
-      d.kind === 'Clarification',
-  )
+  // UPDATED only while a newly uploaded document is within the 4-day window
+  return tender.documents.some((doc) => {
+    if (!isNewDocument(doc)) return false
+    // Initial pack on a newly published tender is covered by NEW, not UPDATED
+    if (isNewTender(tender) && doc.publishedOn === tender.publishedOn) return false
+    return true
+  })
 }
 
 function latestUpdate(tender: Tender) {
