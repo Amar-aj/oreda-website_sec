@@ -3,6 +3,7 @@ import acsImg from '@/assets/images/officials/acs.png'
 import ceoImg from '@/assets/images/officials/ceo.png'
 import cmImg from '@/assets/images/officials/cm.png'
 import deputyCmImg from '@/assets/images/officials/deputy-cm.png'
+import { useWeather } from '@/composables/useWeather'
 import type { NavLink, Official } from '@/types'
 import { ChevronDown, Contrast, Mail, Menu, Phone, Search, X } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
@@ -13,6 +14,7 @@ const fontSize = ref<'sm' | 'base' | 'lg'>('base')
 const highContrast = ref(false)
 const mobileOpen = ref(false)
 const openDropdown = ref<string | null>(null)
+const { weather, loading: weatherLoading, displayTemp } = useWeather()
 
 const officials: { left: Official[]; right: Official[] } = {
   left: [
@@ -153,11 +155,48 @@ watch(
           </a>
         </div>
 
-        <!-- Accessibility (mobile right-aligned / desktop right) -->
-        <div class="flex items-center gap-3 sm:gap-4">
+        <!-- Accessibility + weather (mobile right-aligned / desktop right) -->
+        <div class="flex items-center gap-2.5 sm:gap-4">
+          <div
+            v-if="weather || weatherLoading"
+            class="nav-weather"
+            :title="
+              weather
+                ? `${weather.location}: ${weather.label}, ${displayTemp}`
+                : 'Loading weather'
+            "
+            :aria-label="
+              weather
+                ? `Current weather in ${weather.location}: ${weather.label}, ${displayTemp}`
+                : 'Loading weather'
+            "
+            role="status"
+          >
+            <component
+              :is="weather?.icon"
+              v-if="weather"
+              :size="14"
+              :stroke-width="2.2"
+              class="nav-weather-icon"
+              aria-hidden="true"
+            />
+            <span
+              v-else
+              class="nav-weather-skeleton"
+              aria-hidden="true"
+            />
+            <span class="nav-weather-temp">
+              {{ weather ? displayTemp : '—' }}
+            </span>
+            <span class="nav-weather-meta hidden sm:inline">
+              <span class="nav-weather-dot" aria-hidden="true" />
+              {{ weather?.location ?? 'Bhubaneswar' }}
+            </span>
+          </div>
+
           <a
             href="#main-content"
-            class="hidden hover:underline focus:underline sm:inline"
+            class="hidden hover:underline focus:underline md:inline"
           >
             Skip to content
           </a>
@@ -541,6 +580,64 @@ watch(
 </template>
 
 <style scoped>
+.nav-weather {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.55rem 0.15rem 0.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.nav-weather-icon {
+  flex-shrink: 0;
+  color: #f5e6a8;
+}
+
+.nav-weather-temp {
+  font-size: 12.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.nav-weather-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.nav-weather-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.nav-weather-skeleton {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.25);
+  animation: nav-weather-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes nav-weather-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 .has-dropdown .nav-dropdown {
   transform: translateY(0.6rem) scale(0.96);
   transform-origin: top left;
