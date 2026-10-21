@@ -25,3 +25,8 @@ body {
   min-height: 100svh;
   width: 100%;
 }
+
+html.is-booting,
+html.is-booting body {
+  overflow: hidden;
+}
