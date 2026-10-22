@@ -28,8 +28,8 @@ const schemeLinks = [
 ]
 
 const policyLinks = [
-  { label: 'Privacy Policy', to: '/contact' },
-  { label: 'Terms of Use', to: '/contact' },
+  { label: 'Privacy Policy', to: '/privacy' },
+  { label: 'Terms of Use', to: '/terms' },
   { label: 'Sitemap', to: '/' },
 ]
 

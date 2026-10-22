@@ -67,6 +67,16 @@ const router = createRouter({
           name: 'contact',
           component: () => import('@/views/Contact.vue'),
         },
+        {
+          path: 'privacy',
+          name: 'privacy',
+          component: () => import('@/views/Privacy.vue'),
+        },
+        {
+          path: 'terms',
+          name: 'terms',
+          component: () => import('@/views/Terms.vue'),
+        },
 
       ],
     },
