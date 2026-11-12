@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="is-booting">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
@@ -11,46 +11,8 @@
       rel="stylesheet"
     />
     <title>OREDA Limited | Department of Energy, Government of Odisha</title>
-    <style>
-      html.is-booting,
-      html.is-booting body {
-        overflow: hidden;
-        background: #f6f3ee;
-      }
-      #boot-splash {
-        position: fixed;
-        inset: 0;
-        z-index: 10000;
-        display: grid;
-        grid-template-columns: minmax(4.6rem, 22vw) 1fr;
-        background: #efeaf8;
-      }
-      #boot-splash span {
-        background: linear-gradient(180deg, #482888, #001038);
-      }
-      #boot-splash div {
-        display: grid;
-        place-items: center;
-        background:
-          radial-gradient(ellipse 80% 55% at 12% -8%, rgba(56, 32, 128, 0.16), transparent 56%),
-          radial-gradient(ellipse 70% 50% at 92% 8%, rgba(196, 181, 240, 0.42), transparent 52%),
-          linear-gradient(155deg, #efeaf8, #f5f3fb 40%, #eef1f7);
-      }
-      #boot-splash img {
-        width: min(72vw, 15.5rem);
-        height: auto;
-        padding: 1.15rem 1.3rem;
-        background: #fff;
-      }
-    </style>
   </head>
   <body>
-    <div id="boot-splash" aria-hidden="true">
-      <span></span>
-      <div>
-        <img src="/images/oreda-logo.png?v=3" alt="" />
-      </div>
-    </div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

@@ -58,6 +58,11 @@ const router = createRouter({
           component: () => import('@/views/Gallery.vue'),
         },
         {
+          path: 'awards',
+          name: 'awards',
+          component: () => import('@/views/Awards.vue'),
+        },
+        {
           path: 'career',
           name: 'career',
           component: () => import('@/views/Career.vue'),

@@ -47,8 +47,16 @@ const allOfficials = [...officials.left, ...officials.right]
 
 const navLinks: NavLink[] = [
   { label: 'Home', to: '/', hasDropdown: false },
-  { label: 'About Us', to: '/about', hasDropdown: false },
-  { label: 'Leadership', to: '/leadership', hasDropdown: false },
+  {
+    label: 'Organisation',
+    hasDropdown: true,
+    children: [
+      { label: 'About Us', to: '/about' },
+      { label: 'Leadership', to: '/leadership' },
+      { label: 'Career', to: '/career' },
+      { label: 'Memorandum of Understanding', to: '/mou' },
+    ],
+  },
   {
     label: 'Our Programs',
     hasDropdown: true,
@@ -62,12 +70,7 @@ const navLinks: NavLink[] = [
   },
   { label: 'Tenders', to: '/tenders', hasDropdown: false },
   { label: 'Photo Gallery', to: '/gallery', hasDropdown: false },
-  {
-    label: 'SKOCH Award',
-    to: 'https://exhibition.skoch.in/exhibition/odisha-renewable-energy-development-agency/',
-    external: true,
-    hasDropdown: false,
-  },
+  { label: 'Awards & Recognition', to: '/awards', hasDropdown: false },
   {
     label: 'Re-Connect Portal',
     to: 'https://reconnect.odisha.gov.in/',
@@ -80,7 +83,6 @@ const navLinks: NavLink[] = [
     external: true,
     hasDropdown: false,
   },
-  { label: 'Career', to: '/career', hasDropdown: false },
   { label: 'Contact Us', to: '/contact', hasDropdown: false },
 ]
 
@@ -498,7 +500,11 @@ watch(
                   />
                   <div class="border-b border-oreda/10 bg-[#f8f6fc] px-4 py-2.5">
                     <p class="text-[10px] font-bold tracking-[0.18em] text-oreda uppercase">
-                      Explore programs
+                      {{
+                        link.label === 'Organisation'
+                          ? 'Explore organisation'
+                          : 'Explore programs'
+                      }}
                     </p>
                   </div>
                   <ul class="py-1.5" role="menu">
