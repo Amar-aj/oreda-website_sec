@@ -85,6 +85,11 @@ const navLinks: NavLink[] = [
     external: true,
     hasDropdown: false,
   },
+  {
+    label: 'Vendor Empanelment',
+    to: '/vendor-empanelment',
+    hasDropdown: false,
+  },
   { label: 'Contact Us', to: '/contact', hasDropdown: false },
 ]
 
@@ -474,17 +479,17 @@ watch(
       <div
         class="mx-auto flex max-w-[1400px] items-stretch justify-between px-4 sm:px-6 lg:px-8"
       >
-        <ul class="flex flex-1 flex-wrap items-stretch">
+        <ul class="flex min-w-0 flex-1 flex-nowrap items-stretch">
           <li
             v-for="link in navLinks"
             :key="link.label"
-            class="group/nav relative"
+            class="group/nav relative shrink-0"
             :class="link.children?.length ? 'has-dropdown' : ''"
           >
             <template v-if="link.children?.length">
               <button
                 type="button"
-                class="relative flex h-full items-center gap-1.5 px-3 py-3 text-[13px] font-semibold whitespace-nowrap text-white transition group-hover/nav:bg-oreda-mid sm:px-3.5 sm:text-sm lg:px-4"
+                class="relative flex h-full items-center gap-1.5 px-3 py-3 text-[14px] font-semibold whitespace-nowrap text-white transition group-hover/nav:bg-oreda-mid xl:px-3.5"
                 :class="isActive(link) ? 'bg-oreda-light' : ''"
                 aria-haspopup="true"
               >
@@ -556,14 +561,14 @@ watch(
               :href="link.to"
               target="_blank"
               rel="noopener noreferrer"
-              class="relative flex h-full items-center gap-1 px-3 py-3 text-[13px] font-semibold whitespace-nowrap text-white transition hover:bg-oreda-mid sm:px-3.5 sm:text-sm lg:px-4"
+              class="relative flex h-full items-center gap-1 px-3 py-3 text-[14px] font-semibold whitespace-nowrap text-white transition hover:bg-oreda-mid xl:px-3.5"
             >
               {{ link.label }}
             </a>
             <RouterLink
               v-else-if="link.to"
               :to="link.to"
-              class="relative flex h-full items-center gap-1 px-3 py-3 text-[13px] font-semibold whitespace-nowrap text-white transition sm:px-3.5 sm:text-sm lg:px-4"
+              class="relative flex h-full items-center gap-1 px-3 py-3 text-[14px] font-semibold whitespace-nowrap text-white transition xl:px-3.5"
               :class="
                 isActive(link)
                   ? 'bg-oreda-light after:absolute after:inset-x-3 after:bottom-0 after:h-[3px] after:rounded-t-sm after:bg-white/90'
@@ -574,7 +579,7 @@ watch(
             </RouterLink>
             <span
               v-else
-              class="relative flex h-full cursor-default items-center gap-1 px-3 py-3 text-[13px] font-semibold whitespace-nowrap text-white/90 sm:px-3.5 sm:text-sm lg:px-4"
+              class="relative flex h-full cursor-default items-center gap-1 px-3 py-3 text-[14px] font-semibold whitespace-nowrap text-white/90 xl:px-3.5"
             >
               {{ link.label }}
             </span>
@@ -583,7 +588,7 @@ watch(
 
         <button
           type="button"
-          class="flex items-center justify-center border-l border-white/25 px-4 text-white transition hover:bg-oreda-mid"
+          class="flex shrink-0 items-center justify-center border-l border-white/25 px-4 text-white transition hover:bg-oreda-mid"
           aria-label="Search"
           @click="openSearch"
         >

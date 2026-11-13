@@ -73,6 +73,11 @@ const router = createRouter({
           component: () => import('@/views/Contact.vue'),
         },
         {
+          path: 'vendor-empanelment',
+          name: 'vendor-empanelment',
+          component: () => import('@/views/VendorEmpanelment.vue'),
+        },
+        {
           path: 'privacy',
           name: 'privacy',
           component: () => import('@/views/Privacy.vue'),
