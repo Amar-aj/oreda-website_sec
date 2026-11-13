@@ -25,3 +25,7 @@ body {
   min-height: 100svh;
   width: 100%;
 }
+
+[id] {
+  scroll-margin-top: 7.5rem;
+}

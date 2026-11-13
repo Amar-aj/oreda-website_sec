@@ -32,6 +32,7 @@ onUnmounted(() => observer?.disconnect())
 
 <template>
   <section
+    id="about-hero"
     ref="sectionRef"
     class="about-hero relative w-full overflow-hidden"
     aria-labelledby="about-hero-heading"

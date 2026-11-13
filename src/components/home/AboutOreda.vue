@@ -39,6 +39,7 @@ const wheelSpokes = Array.from({ length: 16 }, (_, i) => {
 
 <template>
   <section
+    id="about-oreda"
     class="about-oreda w-full overflow-hidden bg-white pb-5 sm:pb-6"
     aria-labelledby="about-oreda-heading"
   >

@@ -95,6 +95,7 @@ onUnmounted(() => {
 
 <template>
   <section
+    id="latest-news"
     class="updates-bridge relative z-30 -mt-8 sm:-mt-9"
     aria-labelledby="latest-updates-label"
   >

@@ -15,6 +15,7 @@ const site = useSiteStore()
 
 const channels = [
   {
+    id: 'contact-office',
     icon: MapPin,
     label: 'Head Office',
     value: 'S-59, Mancheswar Industrial Estate, Bhubaneswar – 751010',
@@ -23,6 +24,7 @@ const channels = [
     hint: 'Open in Maps',
   },
   {
+    id: 'contact-phone',
     icon: Phone,
     label: 'Phone',
     value: site.phone,
@@ -31,6 +33,7 @@ const channels = [
     hint: 'Call reception',
   },
   {
+    id: 'contact-email',
     icon: Mail,
     label: 'Email',
     value: site.email,
@@ -39,6 +42,7 @@ const channels = [
     hint: 'Send an email',
   },
   {
+    id: 'contact-hours',
     icon: Clock3,
     label: 'Office Hours',
     value: 'Mon – Sat · 10:00 AM – 5:00 PM',
@@ -111,6 +115,7 @@ onUnmounted(() => observer?.disconnect())
 
 <template>
   <section
+    id="contact-main"
     ref="sectionRef"
     class="contact-main relative w-full overflow-hidden"
     aria-labelledby="contact-main-heading"
@@ -154,6 +159,7 @@ onUnmounted(() => observer?.disconnect())
           <ul class="mt-8 space-y-0" role="list">
             <li
               v-for="(item, index) in channels"
+              :id="item.id"
               :key="item.label"
               class="contact-channel"
               :style="{ '--channel-delay': `${80 + index * 70}ms` }"

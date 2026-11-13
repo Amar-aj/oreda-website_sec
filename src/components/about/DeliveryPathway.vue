@@ -63,6 +63,7 @@ onUnmounted(() => observer?.disconnect())
 
 <template>
   <section
+    id="delivery-pathway"
     ref="sectionRef"
     class="pathway relative w-full overflow-hidden"
     aria-labelledby="pathway-heading"

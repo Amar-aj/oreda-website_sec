@@ -38,6 +38,7 @@ onUnmounted(() => observer?.disconnect())
 
 <template>
   <section
+    id="vision-mission"
     ref="sectionRef"
     class="vm relative w-full overflow-hidden"
     aria-labelledby="vm-heading"

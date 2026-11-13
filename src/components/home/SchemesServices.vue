@@ -72,6 +72,7 @@ onUnmounted(() => observer?.disconnect())
 
 <template>
   <section
+    id="schemes"
     ref="sectionRef"
     class="schemes relative w-full overflow-hidden bg-white"
     aria-labelledby="schemes-heading"
@@ -139,6 +140,7 @@ onUnmounted(() => observer?.disconnect())
         <RouterLink
           v-for="(scheme, index) in schemes"
           :key="scheme.id"
+          :id="`scheme-${scheme.id}`"
           to="/schemes"
           class="schemes-item group"
           role="listitem"

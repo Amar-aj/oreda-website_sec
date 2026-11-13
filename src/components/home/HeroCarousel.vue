@@ -132,6 +132,7 @@ onUnmounted(() => {
 
 <template>
   <section
+    id="hero"
     class="hero-carousel relative h-[min(72vh,680px)] min-h-[520px] w-full overflow-hidden bg-oreda-dark"
     aria-roledescription="carousel"
     aria-label="OREDA featured highlights"

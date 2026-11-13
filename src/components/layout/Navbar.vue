@@ -3,6 +3,7 @@ import acsImg from '@/assets/images/officials/acs.png'
 import ceoImg from '@/assets/images/officials/ceo.png'
 import cmImg from '@/assets/images/officials/cm.png'
 import deputyCmImg from '@/assets/images/officials/deputy-cm.png'
+import SiteSearch from '@/components/layout/SiteSearch.vue'
 import { useWeather } from '@/composables/useWeather'
 import type { NavLink, Official } from '@/types'
 import { ChevronDown, Contrast, Mail, Menu, Phone, Search, X } from 'lucide-vue-next'
@@ -13,6 +14,7 @@ const route = useRoute()
 const fontSize = ref<'sm' | 'base' | 'lg'>('base')
 const highContrast = ref(false)
 const mobileOpen = ref(false)
+const searchOpen = ref(false)
 const openDropdown = ref<string | null>(null)
 const { weather, loading: weatherLoading, displayTemp } = useWeather()
 
@@ -117,6 +119,11 @@ function toggleMobile() {
 function closeMobile() {
   mobileOpen.value = false
   openDropdown.value = null
+}
+
+function openSearch() {
+  closeMobile()
+  searchOpen.value = true
 }
 
 watch(
@@ -382,6 +389,7 @@ watch(
             type="button"
             class="flex flex-1 items-center justify-center gap-2 rounded-md bg-white/10 py-2 text-[13px] font-semibold text-white transition hover:bg-white/15"
             aria-label="Search"
+            @click="openSearch"
           >
             <Search :size="16" :stroke-width="2.25" />
             Search
@@ -577,11 +585,14 @@ watch(
           type="button"
           class="flex items-center justify-center border-l border-white/25 px-4 text-white transition hover:bg-oreda-mid"
           aria-label="Search"
+          @click="openSearch"
         >
           <Search :size="18" :stroke-width="2.25" />
         </button>
       </div>
     </nav>
+
+    <SiteSearch v-model:open="searchOpen" />
   </header>
 </template>
 

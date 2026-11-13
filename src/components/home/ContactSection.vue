@@ -52,6 +52,7 @@ onUnmounted(() => observer?.disconnect())
 
 <template>
   <section
+    id="home-contact"
     ref="sectionRef"
     class="contact relative w-full overflow-hidden"
     aria-labelledby="contact-heading"

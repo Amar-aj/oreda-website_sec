@@ -130,6 +130,7 @@ onUnmounted(() => {
 
 <template>
   <section
+    id="impact"
     ref="sectionRef"
     class="impact relative w-full overflow-hidden bg-oreda-dark text-white"
     aria-labelledby="impact-heading"

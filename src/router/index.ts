@@ -86,7 +86,31 @@ const router = createRouter({
       ],
     },
   ],
-  scrollBehavior() {
+  scrollBehavior(to, _from, savedPosition) {
+    if (savedPosition) return savedPosition
+
+    if (to.hash) {
+      return new Promise((resolve) => {
+        const tryScroll = (attempt = 0) => {
+          const el = document.querySelector(to.hash)
+          if (el) {
+            resolve({
+              el: to.hash,
+              top: 112,
+              behavior: 'smooth',
+            })
+            return
+          }
+          if (attempt >= 16) {
+            resolve({ top: 0 })
+            return
+          }
+          window.setTimeout(() => tryScroll(attempt + 1), 50)
+        }
+        window.setTimeout(() => tryScroll(), 80)
+      })
+    }
+
     return { top: 0 }
   },
 })

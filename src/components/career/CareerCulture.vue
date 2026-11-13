@@ -42,6 +42,7 @@ onUnmounted(() => observer?.disconnect())
 
 <template>
   <section
+    id="career-culture"
     ref="sectionRef"
     class="career-culture relative w-full overflow-hidden"
     aria-labelledby="career-culture-heading"

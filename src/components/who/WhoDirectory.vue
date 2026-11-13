@@ -296,6 +296,7 @@ onUnmounted(() => observer?.disconnect())
 
 <template>
   <section
+    id="who-directory"
     ref="sectionRef"
     class="who-dir relative w-full overflow-hidden"
     aria-labelledby="who-senior-heading"
@@ -397,6 +398,7 @@ onUnmounted(() => observer?.disconnect())
       <ul v-if="showSeniors" class="who-senior-grid" role="list">
         <li
           v-for="(person, index) in filteredSeniors"
+          :id="`who-${person.id}`"
           :key="person.id"
           class="who-senior"
           :class="{ 'is-highlight': person.highlight }"

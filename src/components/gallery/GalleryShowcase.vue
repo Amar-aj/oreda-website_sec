@@ -296,6 +296,7 @@ onUnmounted(() => {
 
 <template>
   <section
+    id="gallery-showcase"
     ref="sectionRef"
     class="gallery-show relative w-full overflow-hidden"
     aria-labelledby="gallery-show-heading"
@@ -365,6 +366,7 @@ onUnmounted(() => {
       >
         <button
           v-for="(item, index) in filtered"
+          :id="`gallery-${item.id}`"
           :key="item.id"
           type="button"
           class="gallery-tile group"

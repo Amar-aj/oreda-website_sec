@@ -356,6 +356,7 @@ onUnmounted(() => observer?.disconnect())
       <ul :key="activeDept" class="career-board mt-6" role="list">
         <li
           v-for="(job, index) in filtered"
+          :id="`career-job-${job.id}`"
           :key="job.id"
           class="career-role"
           :class="{ 'is-open': expandedId === job.id }"

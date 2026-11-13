@@ -56,6 +56,7 @@ onUnmounted(() => observer?.disconnect())
 
 <template>
   <section
+    id="achievements"
     ref="sectionRef"
     class="achievements relative w-full overflow-hidden bg-[#f4f2f8]"
     aria-labelledby="achievements-heading"

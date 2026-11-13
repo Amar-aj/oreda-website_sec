@@ -62,6 +62,7 @@ onUnmounted(() => observer?.disconnect())
 
 <template>
   <section
+    id="awards-showcase"
     ref="sectionRef"
     class="awards-board w-full"
     aria-label="Awards and recognitions list"
@@ -112,7 +113,7 @@ onUnmounted(() => observer?.disconnect())
         class="awards-featured awards-reveal"
         style="--delay: 40ms"
       >
-        <article class="awards-feature-main">
+        <article :id="`award-${featuredPrimary.id}`" class="awards-feature-main">
           <img
             :src="featuredPrimary.image"
             :alt="`${featuredPrimary.title} — demo award image`"
@@ -141,6 +142,7 @@ onUnmounted(() => observer?.disconnect())
         <div class="awards-feature-side">
           <article
             v-for="item in featuredSide"
+            :id="`award-${item.id}`"
             :key="item.id"
             class="awards-feature-side-card"
           >
@@ -181,6 +183,7 @@ onUnmounted(() => observer?.disconnect())
       <div v-if="listRest.length" class="awards-grid">
         <article
           v-for="(item, index) in listRest"
+          :id="`award-${item.id}`"
           :key="item.id"
           class="awards-card awards-reveal"
           :style="{ '--delay': `${140 + index * 60}ms` }"
