@@ -153,6 +153,15 @@ const pages: SiteSearchItem[] = [
     keywords: 'mancheswar bhubaneswar',
   },
   {
+    id: 'page-vendor-empanelment',
+    title: 'Vendor Empanelment',
+    body: 'Vendor signup, login and 16-stage BID document empanelment process with OREDA.',
+    pageLabel: 'Vendor Empanelment',
+    to: '/vendor-empanelment',
+    category: 'Page',
+    keywords: 'vendor bid empanelment registration login signup',
+  },
+  {
     id: 'page-privacy',
     title: 'Privacy Policy',
     body: 'How personal information is handled on this website.',
