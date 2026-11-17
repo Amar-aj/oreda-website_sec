@@ -140,7 +140,7 @@ async function onSignup() {
             @submit.prevent="onLogin"
           >
             <label class="vep-field">
-              <span class="vep-label">User ID / Registered Email</span>
+              <span class="vep-label">User Name</span>
               <span class="vep-control">
                 <UserRound :size="17" :stroke-width="2" class="vep-icon" />
                 <input

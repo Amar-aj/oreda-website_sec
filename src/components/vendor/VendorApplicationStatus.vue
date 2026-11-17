@@ -100,7 +100,7 @@ async function viewDocument(bidId: number) {
           <p class="vas-dept-sub">Department of Energy · Government of Odisha</p>
           <h1 class="vas-title">
             <span>Vendor</span>
-            <span>e-Empanelment Portal</span>
+            <span>Empanelment Portal</span>
           </h1>
         </div>
         <div class="vas-account">
