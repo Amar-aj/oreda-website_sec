@@ -85,11 +85,6 @@ const navLinks: NavLink[] = [
     external: true,
     hasDropdown: false,
   },
-  {
-    label: 'Vendor Empanelment',
-    to: '/vendor-empanelment',
-    hasDropdown: false,
-  },
   { label: 'Contact Us', to: '/contact', hasDropdown: false },
 ]
 
