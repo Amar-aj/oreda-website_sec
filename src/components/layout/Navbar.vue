@@ -56,7 +56,7 @@ const navLinks: NavLink[] = [
       { label: 'About Us', to: '/about' },
       { label: 'Leadership', to: '/leadership' },
       { label: 'Career', to: '/career' },
-      { label: 'Memorandum of Understanding', to: '/mou' },
+     
     ],
   },
   
@@ -69,12 +69,7 @@ const navLinks: NavLink[] = [
     external: true,
     hasDropdown: false,
   },
-  {
-    label: 'Bhubaneswar Solar City Portal',
-    to: 'https://recitybhubaneswar.odisha.gov.in/home',
-    external: true,
-    hasDropdown: false,
-  },
+
   { label: 'Contact Us', to: '/contact', hasDropdown: false },
 ]
 
