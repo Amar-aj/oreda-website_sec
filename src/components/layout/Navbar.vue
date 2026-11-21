@@ -59,17 +59,7 @@ const navLinks: NavLink[] = [
       { label: 'Memorandum of Understanding', to: '/mou' },
     ],
   },
-  {
-    label: 'Our Programs',
-    hasDropdown: true,
-    children: [
-      { label: 'On-Grid Re Energy Application', to: '/programs/on-grid' },
-      { label: 'Off-Grid Re Energy Application', to: '/programs/off-grid' },
-      { label: 'Regulatory Functions', to: '/programs/regulatory' },
-      { label: 'Consultancy', to: '/programs/consultancy' },
-      { label: 'Special Scheme', to: '/programs/special-scheme' },
-    ],
-  },
+  
   { label: 'Tenders', to: '/tenders', hasDropdown: false },
   { label: 'Photo Gallery', to: '/gallery', hasDropdown: false },
   { label: 'Awards & Recognition', to: '/awards', hasDropdown: false },
